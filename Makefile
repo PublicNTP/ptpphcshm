@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Wpedantic -g -std=c++17 -Ilib/linuxptp-2.0/ 
+CXXFLAGS = -Wall -Wextra -Wpedantic -fpermissive -g -std=c++17 -Ilib/linuxptp-2.0/ 
 
 SRCDIR := src
 SRCS := $(wildcard $(SRCDIR)/*.cpp)
@@ -49,6 +49,7 @@ $(BINDIR) :
 	mkdir -p $(BINDIR)
 
 clean :
+	$(MAKE) -C lib/linuxptp-2.0 clean
 	rm -f $(OBJS) $(BINDIR)/ptpphcshm
 
 $(DEPDIR)/%.d: ;

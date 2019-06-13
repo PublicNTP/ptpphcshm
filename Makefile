@@ -12,8 +12,8 @@ AR=/usr/bin/ar
 ARFLAGS=-crs
 
 LD=g++
-LD_LIBS=-llinuxptp
-LDFLAGS=-Llib/linuxptp-2.0
+LD_LIBS=
+LDFLAGS=
 
 LINUXPTP_LIB := lib/linuxptp-2.0/liblinuxptp.a
 

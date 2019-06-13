@@ -9,9 +9,9 @@ int main(int argc, char** argv)
 {
     validateArgCount(argc, argv);
 
-    publicntp::PhcReader phcReader();
+    publicntp::PhcReader phcReader;
 
-    publicntp::NtpShmWriter ntpShmWriter();
+    publicntp::NtpShmWriter ntpShmWriter;
 
     phcReader.open("/dev/ptp0");
 

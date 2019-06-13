@@ -4,9 +4,10 @@ namespace publicntp {
 
     class NtpShmWriter 
     {
-        NtpShmWriter() {}
+        public:
+            NtpShmWriter() {}
 
-        virtual ~NtpShmWriter() {}
+            virtual ~NtpShmWriter() {}
 
     };
 }

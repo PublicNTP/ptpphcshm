@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include "PhcReader.hpp"
-#include <phc.h>
+#include "phc.h"
 
 
 namespace publicntp {
@@ -20,14 +20,26 @@ namespace publicntp {
     {
         close();
 
-        std::cout << "Node: " << deviceName << std::endl;
+        std::cout << "PHC device: " << deviceName << std::endl;
+
+        clockId_ = phc_open(deviceName.c_str());
+
+        if ( clockId_ != CLOCK_INVALID )
+        {
+            isOpen_ = true;
+            std::cout << "Clock opened successfully, clock ID = " << clockId_ << std::endl;
+        }
+        else
+        {
+            std::cerr << "Clock open failed" << std::endl;
+        }
     }
 
     void PhcReader::close()
     {
         if ( isOpen_ == true )
         {
-            
+            std::cout << "Trying to close clock ID " << clockId_ << std::endl;    
 
         }
     }

@@ -9,7 +9,8 @@ Relay high-precision time data from the PTP PHC device to a shared memory (SHM) 
 * tar zxvfp linuxptp-2.0
 * cd linuxptp-2.0
 * make
-* sudo make install
+* ar -crs liblinuxptp.a *.o 
+
 
 
 

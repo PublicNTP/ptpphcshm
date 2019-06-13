@@ -2,12 +2,16 @@
 #include <cstdlib>
 #include "main.hpp"
 #include "PhcReader.hpp"
+#include "NtpShmWriter.hpp"
+
 
 int main(int argc, char** argv)
 {
     validateArgCount(argc, argv);
 
     publicntp::PhcReader phcReader();
+
+    publicntp::NtpShmWriter ntpShmWriter();
 
 
 

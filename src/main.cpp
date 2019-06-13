@@ -13,6 +13,8 @@ int main(int argc, char** argv)
 
     publicntp::NtpShmWriter ntpShmWriter();
 
+    phcReader.open("/dev/ptp0");
+
 
 
     return 0;

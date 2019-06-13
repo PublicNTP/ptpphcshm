@@ -10,11 +10,11 @@ int main(int argc, char** argv)
     validateArgCount(argc, argv);
 
     publicntp::PhcReader phcReader;
+    phcReader.open("/dev/ptp0");
+    phcReader.getTime();
+
 
     publicntp::NtpShmWriter ntpShmWriter;
-
-    phcReader.open("/dev/ptp0");
-
 
 
     return 0;

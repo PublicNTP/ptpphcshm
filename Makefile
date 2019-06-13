@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Wpedantic -g -std=c++17
+CXXFLAGS = -Wall -Wextra -Wpedantic -g -std=c++17 -Ilib/linuxptp-2.0/ 
 
 SRCDIR := src
 SRCS := $(wildcard $(SRCDIR)/*.cpp)
@@ -8,10 +8,14 @@ OBJDIR := obj
 OBJS := $(addprefix $(OBJDIR)/,$(notdir $(SRCS:.cpp=.o)))
 BINDIR := bin
 
-LD=g++
-#LD_LIBS=-lboost_system -lboost_filesystem -pthread -lz -lprotobuf-lite -losmpbf
+AR=/usr/bin/ar
+ARFLAGS=-crs
 
-#OSMFILEPARSER_LIB := lib/OsmFileParser/lib/libosmfileparser.a
+LD=g++
+LD_LIBS=-llinuxptp
+LDFLAGS=-Llib/linuxptp-2.0
+
+LINUXPTP_LIB := lib/linuxptp-2.0/liblinuxptp.a
 
 #ASTYLE := astyle
 #ASTYLE_FLAGS := --options=astyle.cfg
@@ -23,11 +27,11 @@ COMPILE.cpp = $(CXX) $(DEPFLAGS) $(CXXFLAGS) -c
 POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
 
 all :
-	#$(MAKE) -C lib/OsmFileParser 
-	#$(MAKE) astyle
+	$(MAKE) -C lib/linuxptp-2.0
+	$(AR) $(ARFLAGS) $(LINUXPTP_LIB) lib/linuxptp-2.0/*.o
 	$(MAKE) $(BINDIR)/ptpphcshm
 
-$(BINDIR)/ptpphcshm : $(OBJS) | $(BINDIR)
+$(BINDIR)/ptpphcshm : $(OBJS) $(LINUXPTP_LIB) | $(BINDIR)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LD_LIBS)
 	
 $(OBJDIR)/%.o : $(SRCDIR)/%.cpp

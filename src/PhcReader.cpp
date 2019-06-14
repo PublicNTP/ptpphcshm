@@ -3,6 +3,7 @@
 #include <cstring>
 #include <time.h>
 #include <limits>
+#include <chrono>
 #include "PhcReader.hpp"
 #include "phc.h"
 
@@ -12,8 +13,7 @@ namespace publicntp {
     PhcReader::PhcReader(): 
         isOpen_(false),
         clockId_(CLOCK_INVALID)
-    {
-    }
+    { } 
 
     PhcReader::~PhcReader()
     {
@@ -51,22 +51,32 @@ namespace publicntp {
         }
     }
 
-    timespec PhcReader::getTime() const
+    bool PhcReader::getTime(
+        timespec& phcTime,
+        timespec& sysTime ) const
     {
-        timespec timeSpec = { 0, 0 };
+        bool retVal = false;
 
         if ( isOpen_ == true )
         {
 
             // Zero out all bytes of the structure
-            std::memset( &timeSpec, 0, sizeof(timeSpec) );
+            std::memset( &phcTime, 0, sizeof(timespec) );
+            std::memset( &sysTime, 0, sizeof(timespec) );
 
-            if ( clock_gettime(clockId_, &timeSpec) == 0 )
+            if ( clock_gettime(clockId_, &phcTime) == 0 )
             {
-                std::cout << "Read clock successfully!" << std::endl;
-                // Set seconds
-                std::cout << "Raw time from system call: " << timeSpec.tv_sec <<
-                    "." << timeSpec.tv_nsec << std::endl;
+                auto sysTimeChrono = std::chrono::system_clock::now();
+                sysTime.tv_sec = std::chrono::duration_cast<std::chrono::seconds>(sysTimeChrono.time_since_epoch()).count(); 
+                sysTime.tv_nsec = ( std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    sysTimeChrono.time_since_epoch()).count() ) % 1000000000;
+
+                std::cout << "Read clock successfully: " << phcTime.tv_sec <<
+                    "." << phcTime.tv_nsec << std::endl;
+
+                std::cout << "    System time seconds: " << sysTime.tv_sec << "." << sysTime.tv_nsec << std::endl <<
+                    std::endl;
+                retVal = true;
             }
             else
             {
@@ -80,6 +90,6 @@ namespace publicntp {
             std::cerr << "Tried to read clock when clock wasn't open!" << std::endl;
         }
 
-        return timeSpec;
+        return retVal;
     }
 }

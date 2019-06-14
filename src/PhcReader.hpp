@@ -42,9 +42,11 @@ namespace publicntp {
             /**
              * Return the current time from an open clock device
              *
-             * @return Current time from open PHC device
+             * @param [out] phcTime Time pulled from the PHC 
+             * @param [out] sysTime System clock time that the PHC value was obtained
+             * @return True if the parameter is populated with valid time, else false
              */
-            timespec getTime() const;
+            bool getTime( timespec& phcTime, timespec& sysTime ) const;
 
 
             /**

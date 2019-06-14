@@ -26,7 +26,10 @@ int main(int argc, char** argv)
         if ( phcReader.getTime(phcTime, sysTime) == true )
         {
             // Get current time
-            ntpShmWriter.write(phcTime, sysTime);
+            if ( ntpShmWriter.write(phcTime, sysTime) == true )
+            {
+                std::cout << "** Updated shared memory successfully **" << std::endl << std::endl;
+            }
         }
         std::this_thread::sleep_for( std::chrono::seconds(1) );
     }

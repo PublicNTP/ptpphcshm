@@ -74,8 +74,7 @@ namespace publicntp {
                 std::cout << "Read clock successfully: " << phcTime.tv_sec <<
                     "." << phcTime.tv_nsec << std::endl;
 
-                std::cout << "    System time seconds: " << sysTime.tv_sec << "." << sysTime.tv_nsec << std::endl <<
-                    std::endl;
+                std::cout << "    System time seconds: " << sysTime.tv_sec << "." << sysTime.tv_nsec << std::endl; 
                 retVal = true;
             }
             else

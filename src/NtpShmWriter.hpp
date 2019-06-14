@@ -1,5 +1,8 @@
 #pragma once
 
+#include <time.h>
+#include "NtpShmTimeStruct.hpp"
+
 namespace publicntp {
 
     class NtpShmWriter 
@@ -8,7 +11,8 @@ namespace publicntp {
             NtpShmWriter():
                 segmentNumber_(-1),
                 isOpen_(false), 
-                shmHandle_(0) { }
+                shmHandle_(0),
+                pShmStruct_(nullptr) { }
 
             virtual ~NtpShmWriter() { close(); }
 
@@ -23,5 +27,6 @@ namespace publicntp {
             bool                isOpen_;            ///< Do we have a shared memory segment open currently?
             static const int    ntpShmKeyBase_ = 0x4E545030; ///< The magic key used for NTP segment 0 (+1 for SHM1, +2 for SHM2, etc.)
             int                 shmHandle_;
+            shmTime*            pShmStruct_;
     };
 }

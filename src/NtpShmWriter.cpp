@@ -61,12 +61,12 @@ namespace publicntp {
 
         // Set the clock (meaning "read from PHC") values in the struct
         pShmStruct_->clockTimeStampSec  = phcTime.tv_sec;
-        pShmStruct_->clockTimeStampUSec = phcTime.tv_nsec * 1000;
+        pShmStruct_->clockTimeStampUSec = phcTime.tv_nsec / 1000;
         pShmStruct_->clockTimeStampNSec = phcTime.tv_nsec;
 
         // Set the receive timestamps (meaning "what the system clock read when we got the PHC clock values")
         pShmStruct_->receiveTimeStampSec  = sysTime.tv_sec;
-        pShmStruct_->receiveTimeStampUSec = sysTime.tv_nsec * 1000;
+        pShmStruct_->receiveTimeStampUSec = sysTime.tv_nsec / 1000;
         pShmStruct_->receiveTimeStampNSec = sysTime.tv_nsec;
 
         // Set precision -- supposedly nanosecond accuracy, so let's say 2^-20 (each tick is ~ 0.000009)

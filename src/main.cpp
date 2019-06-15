@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <cstdint>
 #include <thread>
 #include <chrono>
 #include <time.h>
@@ -18,15 +19,14 @@ int main(int argc, char** argv)
     publicntp::NtpShmWriter ntpShmWriter;
     ntpShmWriter.open( std::atoi(argv[2]) );
 
-    timespec phcTime;
-    timespec sysTime;
+    std::uint64_t phcNsSinceEpoch = 0;
+    std::uint64_t sysNsSinceEpoch = 0;
 
     while ( true ) 
     {
-        if ( phcReader.getTime(phcTime, sysTime) == true )
+        if ( phcReader.getTime(phcNsSinceEpoch, sysNsSinceEpoch) == true )
         {
-            // Get current time
-            if ( ntpShmWriter.write(phcTime, sysTime) == true )
+            if ( ntpShmWriter.write(phcNsSinceEpoch, sysNsSinceEpoch) == true )
             {
                 std::cout << "** Updated shared memory successfully **" << std::endl << std::endl;
             }

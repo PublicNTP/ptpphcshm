@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <cstdint>
 #include <time.h>
 #include <limits>
 #include <chrono>
@@ -52,29 +53,29 @@ namespace publicntp {
     }
 
     bool PhcReader::getTime(
-        timespec& phcTime,
-        timespec& sysTime ) const
+        std::uint64_t& phcNsSinceEpoch,
+        std::uint64_t& sysNsSinceEpoch ) const
     {
         bool retVal = false;
 
         if ( isOpen_ == true )
         {
+            timespec phcTimespec;
 
-            // Zero out all bytes of the structure
-            std::memset( &phcTime, 0, sizeof(timespec) );
-            std::memset( &sysTime, 0, sizeof(timespec) );
+            // Zero out all bytes of the structure before reading into it
+            std::memset( &phcTimespec, 0, sizeof(timespec) );
 
-            if ( clock_gettime(clockId_, &phcTime) == 0 )
+            if ( clock_gettime(clockId_, &phcTimespec) == 0 )
             {
-                auto sysTimeChrono = std::chrono::system_clock::now();
-                sysTime.tv_sec = std::chrono::duration_cast<std::chrono::seconds>(sysTimeChrono.time_since_epoch()).count(); 
-                sysTime.tv_nsec = ( std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    sysTimeChrono.time_since_epoch()).count() ) % 1000000000;
+                phcNsSinceEpoch = (phcTimespec.tv_sec * NS_IN_SECOND) + phcTimespec.tv_nsec;
 
-                std::cout << "Read clock successfully: " << phcTime.tv_sec <<
-                    "." << phcTime.tv_nsec << std::endl;
+                const auto sysTimeChrono = std::chrono::system_clock::now();
+                sysNsSinceEpoch = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    sysTimeChrono.time_since_epoch()).count();
 
-                std::cout << "    System time seconds: " << sysTime.tv_sec << "." << sysTime.tv_nsec << std::endl; 
+                std::cout << "Read clock successfully: " << phcTimespec.tv_sec <<
+                    "." << phcTimespec.tv_nsec << std::endl;
+
                 retVal = true;
             }
             else

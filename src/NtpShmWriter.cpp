@@ -1,5 +1,5 @@
 #include <iostream>
-#include <time.h>
+#include <cstdint>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <cstring>
@@ -53,24 +53,43 @@ namespace publicntp {
 
 
     bool NtpShmWriter::write(
-        const timespec& phcTime,
-        const timespec& sysTime ) const
+        const std::uint64_t phcNsSinceEpoch,
+        const std::uint64_t sysNsSinceEpoch ) const
     {
+        // Confirm proper mode -- see http://doc.ntp.org/4.2.8/drivers/driver28.html
+        //      Setting mode to 1 tells consumers of our data: 
+        //
+        //          Read "valid" 
+        //          if "valid" == 1
+        //              read "count" 
+        //              read all timestamp values
+        //              RE-read "count"
+        //              if both reads of "count" are the same value
+        //                  values are sane, use them
+        //              set "valid" to 0
+        pShmStruct_->mode = 1;
+
         // Increment times this shared memory structure has been read or written
         pShmStruct_->count++;
 
+        // Set data invalid until we're done writing it all
+        pShmStruct_->valid = 0;
+
         // Set the clock (meaning "read from PHC") values in the struct
-        pShmStruct_->clockTimeStampSec  = phcTime.tv_sec;
-        pShmStruct_->clockTimeStampUSec = phcTime.tv_nsec / 1000;
-        pShmStruct_->clockTimeStampNSec = phcTime.tv_nsec;
+        pShmStruct_->clockTimeStampSec = phcNsSinceEpoch / NS_IN_SECOND;
+        const int phcNsWithinCurrentSecond = phcNsSinceEpoch % NS_IN_SECOND;
+        pShmStruct_->clockTimeStampUSec = phcNsWithinCurrentSecond / 1000;
+        pShmStruct_->clockTimeStampNSec = phcNsWithinCurrentSecond;
 
         // Set the receive timestamps (meaning "what the system clock read when we got the PHC clock values")
-        pShmStruct_->receiveTimeStampSec  = sysTime.tv_sec;
-        pShmStruct_->receiveTimeStampUSec = sysTime.tv_nsec / 1000;
-        pShmStruct_->receiveTimeStampNSec = sysTime.tv_nsec;
+        pShmStruct_->receiveTimeStampSec  = sysNsSinceEpoch / NS_IN_SECOND;
+        const int sysNsWithinCurrentSecond = sysNsSinceEpoch % NS_IN_SECOND;
+        pShmStruct_->receiveTimeStampUSec = sysNsWithinCurrentSecond / 1000;
+        pShmStruct_->receiveTimeStampNSec = sysNsWithinCurrentSecond;
 
-        // Set precision -- supposedly nanosecond accuracy, so let's say 2^-20 (each tick is ~ 0.000009)
-        pShmStruct_->precision = -20;
+        // Set precision -- supposedly nanosecond accuracy, so want to indicate it ticks at one billion hertz.
+        // 2^30 is the closest power of two to one billion, so mark us as 2^(-30)
+        pShmStruct_->precision = -30;
 
         // We can't know a damn thing about leap seconds
         pShmStruct_->leap = 0;  // aka "LEAP_NOWARNING"
@@ -89,9 +108,13 @@ namespace publicntp {
     {
         if ( isOpen_ == true )
         {
+            // Detatch from shared memory
+            shmdt(pShmStruct_);
+
             std::cout << "Closed NTP SHM segment " << segmentNumber_ << std::endl;
             segmentNumber_ = -1;
             isOpen_ = false;
+            pShmStruct_ = nullptr;
         }
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <time.h>
+#include <cstdint>
 
 // Provide extern wrappers for the C code we call
 extern "C" { 
@@ -46,7 +46,7 @@ namespace publicntp {
              * @param [out] sysTime System clock time that the PHC value was obtained
              * @return True if the parameter is populated with valid time, else false
              */
-            bool getTime( timespec& phcTime, timespec& sysTime ) const;
+            bool getTime( std::uint64_t& phcNsSinceEpoch, std::uint64_t& sysNsSinceEpoch ) const;
 
 
             /**
@@ -58,9 +58,10 @@ namespace publicntp {
 
 
         protected:
-
             bool        isOpen_;    ///< Indicates if the clock object is currently open
             int         clockId_;   ///< Tracks clock ID handle from most recent phc_open
+
+            static const std::uint64_t  NS_IN_SECOND = 1000000000;
 
     };
 }

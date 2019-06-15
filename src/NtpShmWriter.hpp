@@ -1,6 +1,6 @@
 #pragma once
 
-#include <time.h>
+#include <cstdint>
 #include "NtpShmTimeStruct.hpp"
 
 namespace publicntp {
@@ -18,7 +18,7 @@ namespace publicntp {
 
             bool open(const int segmentNumber);
 
-            bool write(const timespec& phcTime, const timespec& sysTime) const;
+            bool write(const std::uint64_t phcTime, const std::uint64_t sysTime) const;
 
             void close();
 
@@ -28,5 +28,7 @@ namespace publicntp {
             static const int    ntpShmKeyBase_ = 0x4E545030; ///< The magic key used for NTP segment 0 (+1 for SHM1, +2 for SHM2, etc.)
             int                 shmHandle_;
             shmTime*            pShmStruct_;
+
+            static const std::uint64_t  NS_IN_SECOND = 1000000000;
     };
 }
